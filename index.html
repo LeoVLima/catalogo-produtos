@@ -524,41 +524,110 @@ function renderGrid(){
     </div>`;
     return;
   }
+
   const grid=document.createElement("div");
   grid.className="grid";
-  grid.innerHTML=list.map((p,i)=>{
-    const brokenSvg=`<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.5'><rect x='3' y='3' width='18' height='18' rx='2'/><path d='m9 9 6 6m0-6-6 6'/></svg><span>sem imagem</span>`;
-    const fallback1 = p.driveId ? `https://drive.google.com/uc?export=view&id=${p.driveId}` : "";
-    const imgTag = p.imageUrl
-      ? `<img loading="lazy" decoding="async" src="${esc(p.imageUrl)}" alt="${esc(p.name)}"
-           data-fb="${esc(fallback1)}"
-           onerror="
-             const fb=this.dataset.fb;
-             if(fb&&this.src!==fb){this.src=fb;this.dataset.fb='';return;}
-             const w=this.parentElement;w.classList.add('broken');
-             w.innerHTML='${brokenSvg.replace(/'/g,"\\'")}';
-           ">`
-      : "";
-    const priceHtml = fmtP(p.price, p.priceRaw)
-      .replace(/^(R\$\s*)(.+)$/, '<span class="curr">R$</span><span class="val">$2</span>');
-    return `
-    <article class="card" data-i="${i}" style="animation-delay:${Math.min(i*28,500)}ms">
-      <div class="card-img${p.imageUrl?"":" broken"}" data-wrap>
-        ${p.imageUrl
-          ?`${p.category?`<span class="cat-badge">${esc(cap(p.category))}</span>`:""}${imgTag}`
-          :brokenSvg
+
+  list.forEach((p,i)=>{
+    // ── card ──────────────────────────────────────
+    const card=document.createElement("article");
+    card.className="card";
+    card.style.animationDelay=`${Math.min(i*28,500)}ms`;
+
+    // ── imagem ────────────────────────────────────
+    const wrap=document.createElement("div");
+    wrap.className="card-img";
+
+    if(p.imageUrl){
+      // badge de categoria
+      if(p.category){
+        const badge=document.createElement("span");
+        badge.className="cat-badge";
+        badge.textContent=cap(p.category);
+        wrap.appendChild(badge);
+      }
+
+      const img=document.createElement("img");
+      img.loading="lazy";
+      img.decoding="async";
+      img.alt=p.name;
+      img.src=p.imageUrl; // atribuição direta — sem escaping, sem risco de corrupção
+
+      // fallback em cadeia via addEventListener (sem inline onerror)
+      let attempts=0;
+      const fallbacks=[];
+      if(p.driveId){
+        fallbacks.push(`https://drive.google.com/uc?export=view&id=${p.driveId}`);
+      }
+
+      img.addEventListener("error",()=>{
+        if(attempts < fallbacks.length){
+          console.warn(`[Catálogo] Tentativa ${attempts+1} — fallback para:`, fallbacks[attempts]);
+          img.src=fallbacks[attempts++];
+          return;
         }
-      </div>
-      <div class="card-body">
-        <div class="card-name">${esc(p.name)}</div>
-        ${p.desc?`<div class="card-desc">${esc(p.desc)}</div>`:""}
-        <div class="card-price">${priceHtml}</div>
-      </div>
-    </article>`;
-  }).join("");
+        // todas as tentativas falharam
+        console.error(`[Catálogo] Imagem indisponível para "${p.name}":`, p.imageUrl);
+        wrap.classList.add("broken");
+        wrap.innerHTML="";
+        const svg=document.createElementNS("http://www.w3.org/2000/svg","svg");
+        svg.setAttribute("viewBox","0 0 24 24");svg.setAttribute("fill","none");
+        svg.setAttribute("stroke","currentColor");svg.setAttribute("stroke-width","1.5");
+        const rect=document.createElementNS("http://www.w3.org/2000/svg","rect");
+        rect.setAttribute("x","3");rect.setAttribute("y","3");
+        rect.setAttribute("width","18");rect.setAttribute("height","18");rect.setAttribute("rx","2");
+        const path=document.createElementNS("http://www.w3.org/2000/svg","path");
+        path.setAttribute("d","m9 9 6 6m0-6-6 6");
+        svg.appendChild(rect);svg.appendChild(path);
+        const span=document.createElement("span");
+        span.textContent="sem imagem";
+        wrap.appendChild(svg);wrap.appendChild(span);
+      });
+
+      wrap.appendChild(img);
+    } else {
+      // sem URL na planilha
+      wrap.classList.add("broken");
+      wrap.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="m9 9 6 6m0-6-6 6"/></svg><span>sem imagem</span>';
+    }
+
+    // ── corpo do card ──────────────────────────────
+    const body=document.createElement("div");
+    body.className="card-body";
+
+    const nameEl=document.createElement("div");
+    nameEl.className="card-name";
+    nameEl.textContent=p.name;
+    body.appendChild(nameEl);
+
+    if(p.desc){
+      const descEl=document.createElement("div");
+      descEl.className="card-desc";
+      descEl.textContent=p.desc;
+      body.appendChild(descEl);
+    }
+
+    const priceEl=document.createElement("div");
+    priceEl.className="card-price";
+    const raw=fmtP(p.price,p.priceRaw);
+    const m=raw.match(/^(R\$\s*)(.+)$/);
+    if(m){
+      const curr=document.createElement("span");curr.className="curr";curr.textContent="R$";
+      const val=document.createElement("span");val.className="val";val.textContent=m[2];
+      priceEl.appendChild(curr);priceEl.appendChild(val);
+    } else {
+      priceEl.textContent=raw;
+    }
+    body.appendChild(priceEl);
+
+    card.appendChild(wrap);
+    card.appendChild(body);
+    card.addEventListener("click",()=>openLb(p));
+    grid.appendChild(card);
+  });
+
   elMain.innerHTML="";
   elMain.appendChild(grid);
-  grid.querySelectorAll(".card").forEach((card,i)=>card.addEventListener("click",()=>openLb(list[i])));
 }
 
 function openLb(p){
@@ -631,6 +700,18 @@ async function init(){
       };
     }).filter(Boolean);
     if(!S.items.length){showErr("Planilha vazia","Nenhuma linha com nome de produto encontrada.");return;}
+
+    // ── diagnóstico no console (F12 → Console) ──────────────────────────
+    console.log(`[Catálogo] ${S.items.length} produtos carregados`);
+    console.log('[Catálogo] Colunas detectadas:', idx);
+    console.log('[Catálogo] Amostra de URLs (primeiros 5):',
+      S.items.slice(0,5).map(p=>({nome:p.name, imageUrl:p.imageUrl, driveId:p.driveId}))
+    );
+    const semImagem=S.items.filter(p=>!p.imageUrl);
+    if(semImagem.length>0)
+      console.warn(`[Catálogo] ${semImagem.length} produto(s) sem URL de imagem:`, semImagem.map(p=>p.name));
+    // ────────────────────────────────────────────────────────────────────
+
     renderFilters();
     renderGrid();
   }catch(e){showErr("Erro ao carregar planilha","Verifique a URL CSV e as permissões.",e.message);}
