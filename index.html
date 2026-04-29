@@ -450,9 +450,16 @@ function driveId(val){
   return null;
 }
 
-/* URL correta — Google Drive Thumbnail API, funciona sem autenticação em arquivos públicos */
+/* Retorna URL de imagem: aceita URL direta (GitHub/qualquer CDN) ou extrai ID do Drive */
 function imgUrl(val,sz=400){
-  const id=driveId(val);
+  if(!val||!val.trim())return null;
+  const v=val.trim();
+  // Se já é URL direta (não é Drive) — usa direto
+  if(v.startsWith("http")&&!v.includes("drive.google.com")&&!v.includes("docs.google.com")){
+    return v;
+  }
+  // URL do Drive — extrai ID e usa thumbnail API
+  const id=driveId(v);
   if(!id)return null;
   return `https://drive.google.com/thumbnail?id=${id}&sz=w${sz}`;
 }
@@ -607,7 +614,11 @@ async function init(){
       const rawLink =idx.link >=0?(r[idx.link] ||""):"";
       const rawImage=idx.image>=0?(r[idx.image]||""):"";
       const priceRaw=idx.price>=0?(r[idx.price]||"").trim():"";
-      const did = driveId(rawLink)||driveId(rawImage);
+      // URL direta (GitHub/CDN) tem prioridade; se for Drive, extrai ID para fallback
+      const directUrl = imgUrl(rawLink,400)||imgUrl(rawImage,400);
+      const did = (!directUrl||directUrl.includes("thumbnail"))
+        ? (driveId(rawLink)||driveId(rawImage))
+        : null;
       return{
         name,
         category:(idx.category>=0?r[idx.category]:"").trim()||null,
@@ -616,7 +627,7 @@ async function init(){
         price:   parsePrice(priceRaw),
         priceRaw:priceRaw||null,
         driveId: did,
-        imageUrl:did?`https://drive.google.com/thumbnail?id=${did}&sz=w400`:null
+        imageUrl:directUrl
       };
     }).filter(Boolean);
     if(!S.items.length){showErr("Planilha vazia","Nenhuma linha com nome de produto encontrada.");return;}
