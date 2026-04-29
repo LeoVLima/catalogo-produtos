@@ -215,9 +215,12 @@ main{
 }
 .card-price{
   margin-top:auto;padding-top:9px;
-  font-family:"Syne",sans-serif;font-weight:800;
-  font-size:18px;color:var(--price-col);letter-spacing:-.02em;line-height:1;
+  font-family:"Plus Jakarta Sans",sans-serif;font-weight:600;
+  font-size:15px;color:var(--price-col);line-height:1;
+  font-variant-numeric:tabular-nums;
 }
+.card-price .curr{font-size:11px;font-weight:500;opacity:.75;vertical-align:.12em;margin-right:1px}
+.card-price .val{font-size:17px;font-weight:700;letter-spacing:-.01em}
 
 /* ── ESTADOS ── */
 .state{text-align:center;padding:72px 24px}
@@ -306,8 +309,9 @@ main{
   text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px;
 }
 .lb-price-val{
-  font-family:"Syne",sans-serif;font-size:26px;font-weight:800;
-  color:var(--price-col);letter-spacing:-.02em;line-height:1;
+  font-family:"Plus Jakarta Sans",sans-serif;font-weight:700;
+  font-size:24px;color:var(--price-col);line-height:1;
+  font-variant-numeric:tabular-nums;letter-spacing:-.01em;
 }
 .lb-cod{text-align:right}
 .lb-cod-val{font-family:"Syne",sans-serif;font-size:15px;font-weight:700;letter-spacing:.04em}
@@ -515,30 +519,56 @@ function renderGrid(){
   }
   const grid=document.createElement("div");
   grid.className="grid";
-  grid.innerHTML=list.map((p,i)=>`
+  grid.innerHTML=list.map((p,i)=>{
+    const brokenSvg=`<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.5'><rect x='3' y='3' width='18' height='18' rx='2'/><path d='m9 9 6 6m0-6-6 6'/></svg><span>sem imagem</span>`;
+    const fallback1 = p.driveId ? `https://drive.google.com/uc?export=view&id=${p.driveId}` : "";
+    const imgTag = p.imageUrl
+      ? `<img loading="lazy" decoding="async" src="${esc(p.imageUrl)}" alt="${esc(p.name)}"
+           data-fb="${esc(fallback1)}"
+           onerror="
+             const fb=this.dataset.fb;
+             if(fb&&this.src!==fb){this.src=fb;this.dataset.fb='';return;}
+             const w=this.parentElement;w.classList.add('broken');
+             w.innerHTML='${brokenSvg.replace(/'/g,"\\'")}';
+           ">`
+      : "";
+    const priceHtml = fmtP(p.price, p.priceRaw)
+      .replace(/^(R\$\s*)(.+)$/, '<span class="curr">R$</span><span class="val">$2</span>');
+    return `
     <article class="card" data-i="${i}" style="animation-delay:${Math.min(i*28,500)}ms">
       <div class="card-img${p.imageUrl?"":" broken"}" data-wrap>
         ${p.imageUrl
-          ?`${p.category?`<span class="cat-badge">${esc(cap(p.category))}</span>`:""}
-            <img loading="lazy" decoding="async" src="${esc(p.imageUrl)}" alt="${esc(p.name)}"
-              onerror="const w=this.parentElement;w.classList.add('broken');w.innerHTML='<svg viewBox=\\'0 0 24 24\\' fill=\\'none\\' stroke=\\'currentColor\\' stroke-width=\\'1.5\\'><rect x=\\'3\\' y=\\'3\\' width=\\'18\\' height=\\'18\\' rx=\\'2\\'/><path d=\\'m9 9 6 6m0-6-6 6\\'/></svg><span>sem imagem</span>';">`
-          :`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="m9 9 6 6m0-6-6 6"/></svg><span>sem imagem</span>`
+          ?`${p.category?`<span class="cat-badge">${esc(cap(p.category))}</span>`:""}${imgTag}`
+          :brokenSvg
         }
       </div>
       <div class="card-body">
         <div class="card-name">${esc(p.name)}</div>
         ${p.desc?`<div class="card-desc">${esc(p.desc)}</div>`:""}
-        <div class="card-price">${fmtP(p.price,p.priceRaw)}</div>
+        <div class="card-price">${priceHtml}</div>
       </div>
-    </article>`).join("");
+    </article>`;
+  }).join("");
   elMain.innerHTML="";
   elMain.appendChild(grid);
   grid.querySelectorAll(".card").forEach((card,i)=>card.addEventListener("click",()=>openLb(list[i])));
 }
 
 function openLb(p){
-  lbImg.src=p.imageUrl?p.imageUrl.replace(/sz=w\d+/,"sz=w900"):"";
-  lbImg.style.display=p.imageUrl?"block":"none";
+  if(p.imageUrl){
+    lbImg.src=p.imageUrl.replace(/sz=w\d+/,"sz=w900");
+    lbImg.style.display="block";
+    const fb1=p.driveId?`https://drive.google.com/uc?export=view&id=${p.driveId}`:"";
+    lbImg.dataset.fb=fb1;
+    lbImg.onerror=function(){
+      if(this.dataset.fb&&this.src!==this.dataset.fb){
+        this.src=this.dataset.fb;this.dataset.fb="";return;
+      }
+      this.style.display="none";
+    };
+  } else {
+    lbImg.style.display="none";
+  }
   lbCat.textContent=cap(p.category||"Produto");
   lbName.textContent=p.name;
   lbDesc.textContent=p.desc||"";
@@ -577,6 +607,7 @@ async function init(){
       const rawLink =idx.link >=0?(r[idx.link] ||""):"";
       const rawImage=idx.image>=0?(r[idx.image]||""):"";
       const priceRaw=idx.price>=0?(r[idx.price]||"").trim():"";
+      const did = driveId(rawLink)||driveId(rawImage);
       return{
         name,
         category:(idx.category>=0?r[idx.category]:"").trim()||null,
@@ -584,7 +615,8 @@ async function init(){
         code:    (idx.code    >=0?r[idx.code]    :"").trim()||null,
         price:   parsePrice(priceRaw),
         priceRaw:priceRaw||null,
-        imageUrl:imgUrl(rawLink,400)||imgUrl(rawImage,400)
+        driveId: did,
+        imageUrl:did?`https://drive.google.com/thumbnail?id=${did}&sz=w400`:null
       };
     }).filter(Boolean);
     if(!S.items.length){showErr("Planilha vazia","Nenhuma linha com nome de produto encontrada.");return;}
