@@ -3,887 +3,597 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<meta name="theme-color" content="#fafaf7" media="(prefers-color-scheme: light)" />
-<meta name="theme-color" content="#0e0e0c" media="(prefers-color-scheme: dark)" />
-<title>Catálogo</title>
+<meta name="theme-color" content="#0f172a" media="(prefers-color-scheme: dark)" />
+<meta name="theme-color" content="#f0f4ff" media="(prefers-color-scheme: light)" />
+<title>Catálogo de Produtos</title>
 
-<!-- ============================================================
-     CONFIGURAÇÃO — edite apenas esta seção
-     ============================================================ -->
 <script>
-  // 1) URL CSV da planilha publicada na web.
-  //    Como obter: Arquivo → Compartilhar → Publicar na web →
-  //    Aba específica + "Valores separados por vírgula (.csv)" → Publicar
-  //    Cole abaixo a URL gerada (termina em /pub?gid=...&single=true&output=csv)
-  window.SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQCFo6CR0dZ9RqDEKRQ4ReSIIjNyYqdA8K0IdhorV7eIyZkknRT5gxF2hY0tzjw04tiKSmwwV_eBWTL/pub?gid=883949678&single=true&output=csv";
-
-  // 2) Título e subtítulo do catálogo
-  window.CATALOG_TITLE = "Catálogo";
-  window.CATALOG_SUBTITLE = "Produtos disponíveis com valores de referência";
-
-  // 3) Moeda para formatação automática (pode ser número puro na planilha)
+  window.SHEET_CSV_URL   = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQCFo6CR0dZ9RqDEKRQ4ReSIIjNyYqdA8K0IdhorV7eIyZkknRT5gxF2hY0tzjw04tiKSmwwV_eBWTL/pub?gid=883949678&single=true&output=csv";
+  window.CATALOG_TITLE   = "Catálogo";
+  window.CATALOG_BRAND   = "Produtos & Preços";
   window.CURRENCY_LOCALE = "pt-BR";
-  window.CURRENCY_CODE = "BRL";
+  window.CURRENCY_CODE   = "BRL";
 </script>
 
-<!-- Tipografia editorial -->
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
 
 <style>
-  /* =========================================================
-     Sistema de design — tema segue o sistema operacional
-     ========================================================= */
+:root {
+  --violet:      #7c3aed;
+  --violet-dim:  #6d28d9;
+  --violet-glow: #a78bfa;
+  --blue:        #3b82f6;
+  --blue-light:  #93c5fd;
+  --muted:       #94a3b8;
+  --border:      rgba(148,163,184,.18);
+  --radius:      16px;
+  --radius-sm:   10px;
+  --radius-pill: 999px;
+
+  /* tema claro */
+  --bg:          #f0f4ff;
+  --surface:     #ffffff;
+  --surface-2:   #e8eeff;
+  --text:        #0f172a;
+  --text-sub:    #475569;
+  --chip-bg:     #ffffff;
+  --chip-border: #c7d2fe;
+  --price-col:   #7c3aed;
+  --header-bg:   rgba(240,244,255,.9);
+  --shadow-card: 0 2px 8px rgba(15,23,42,.07),0 0 0 1px rgba(99,102,241,.06);
+  --shadow-hover:0 8px 28px rgba(124,58,237,.16),0 2px 8px rgba(15,23,42,.1);
+  --shadow-lb:   0 32px 64px rgba(15,23,42,.32);
+}
+
+@media (prefers-color-scheme: dark) {
   :root {
-    --bg: #fafaf7;
-    --surface: #ffffff;
-    --surface-2: #f3f1ec;
-    --text: #1a1a1a;
-    --text-muted: #6b6b6b;
-    --border: #e8e6e0;
-    --accent: #1a1a1a;
-    --accent-fg: #fafaf7;
-    --shadow: 0 1px 2px rgba(0,0,0,.04), 0 8px 24px rgba(0,0,0,.06);
-    --shadow-lg: 0 24px 48px rgba(0,0,0,.18);
-    --radius: 14px;
-    --radius-sm: 10px;
+    --bg:          #080f1f;
+    --surface:     #0f172a;
+    --surface-2:   #1e293b;
+    --text:        #f1f5f9;
+    --text-sub:    #94a3b8;
+    --chip-bg:     #1e293b;
+    --chip-border: rgba(124,58,237,.4);
+    --price-col:   #a78bfa;
+    --header-bg:   rgba(8,15,31,.9);
+    --shadow-card: 0 2px 8px rgba(0,0,0,.4),0 0 0 1px rgba(124,58,237,.12);
+    --shadow-hover:0 8px 28px rgba(124,58,237,.28),0 2px 8px rgba(0,0,0,.3);
+    --shadow-lb:   0 32px 64px rgba(0,0,0,.72);
   }
+}
 
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --bg: #0e0e0c;
-      --surface: #161614;
-      --surface-2: #1f1f1c;
-      --text: #f5f5f0;
-      --text-muted: #9a988f;
-      --border: #2a2a26;
-      --accent: #f5f5f0;
-      --accent-fg: #0e0e0c;
-      --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.4);
-      --shadow-lg: 0 24px 48px rgba(0,0,0,.6);
-    }
-  }
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:"Plus Jakarta Sans",system-ui,sans-serif;
+  font-size:15px;
+  line-height:1.55;
+  -webkit-font-smoothing:antialiased;
+  min-height:100dvh;
+  overflow-x:hidden;
+}
+body::before{
+  content:"";
+  position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:
+    radial-gradient(ellipse 80% 40% at 10% -10%,rgba(124,58,237,.11) 0%,transparent 60%),
+    radial-gradient(ellipse 55% 28% at 92% 108%,rgba(59,130,246,.09) 0%,transparent 60%);
+}
+button,input{font:inherit;color:inherit;background:none;border:none}
+img{display:block;max-width:100%}
 
-  *, *::before, *::after { box-sizing: border-box; }
+/* ── HEADER ── */
+.site-header{
+  position:sticky;top:0;z-index:50;
+  background:var(--header-bg);
+  backdrop-filter:saturate(180%) blur(16px);
+  -webkit-backdrop-filter:saturate(180%) blur(16px);
+  border-bottom:1px solid var(--border);
+}
+.header-inner{max-width:1320px;margin:0 auto;padding:14px 18px 0}
 
-  html { -webkit-text-size-adjust: 100%; }
+.brand-row{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}
+.brand-logo{display:flex;align-items:center;gap:10px}
+.brand-icon{
+  width:38px;height:38px;border-radius:11px;flex-shrink:0;
+  background:linear-gradient(135deg,var(--violet),var(--blue));
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 4px 14px rgba(124,58,237,.38);
+}
+.brand-icon svg{width:19px;height:19px;color:#fff}
+.brand-texts{display:flex;flex-direction:column}
+.brand-title{
+  font-family:"Syne",sans-serif;font-weight:800;
+  font-size:clamp(20px,4.5vw,26px);line-height:1;letter-spacing:-.025em;
+  background:linear-gradient(115deg,var(--text) 45%,var(--violet));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+.brand-sub{font-size:10.5px;color:var(--text-sub);letter-spacing:.07em;text-transform:uppercase;font-weight:600;margin-top:2px}
 
-  body {
-    margin: 0;
-    background: var(--bg);
-    color: var(--text);
-    font-family: "Manrope", system-ui, -apple-system, sans-serif;
-    font-size: 15px;
-    line-height: 1.5;
-    font-feature-settings: "ss01", "cv11";
-    -webkit-font-smoothing: antialiased;
-    text-rendering: optimizeLegibility;
-    min-height: 100vh;
-    min-height: 100dvh;
-  }
+.count-pill{
+  font-family:"Syne",sans-serif;font-size:11px;font-weight:700;
+  color:var(--violet-glow);
+  background:rgba(124,58,237,.14);
+  border:1px solid rgba(124,58,237,.28);
+  padding:4px 11px;border-radius:var(--radius-pill);
+  white-space:nowrap;letter-spacing:.03em;
+}
 
-  /* Reset acessível */
-  button, input { font: inherit; color: inherit; }
-  img { display: block; max-width: 100%; height: auto; }
+.search-wrap{position:relative;margin-bottom:12px}
+.search-wrap svg{position:absolute;left:14px;top:50%;transform:translateY(-50%);width:17px;height:17px;color:var(--muted);pointer-events:none}
+.search-wrap input{
+  width:100%;padding:11px 14px 11px 42px;
+  background:var(--surface);border:1.5px solid var(--chip-border);
+  border-radius:var(--radius-sm);outline:none;font-size:14px;
+  transition:border-color .15s,box-shadow .15s;
+}
+.search-wrap input:focus{border-color:var(--violet);box-shadow:0 0 0 3px rgba(124,58,237,.14)}
+.search-wrap input::placeholder{color:var(--muted)}
 
-  /* =========================================================
-     Header
-     ========================================================= */
-  .site-header {
-    position: sticky;
-    top: 0;
-    z-index: 50;
-    background: color-mix(in srgb, var(--bg) 88%, transparent);
-    backdrop-filter: saturate(180%) blur(14px);
-    -webkit-backdrop-filter: saturate(180%) blur(14px);
-    border-bottom: 1px solid var(--border);
-  }
+.filter-row{
+  display:flex;gap:7px;overflow-x:auto;overflow-y:hidden;
+  padding:2px 0 14px;margin:0 -18px;padding-left:18px;padding-right:18px;
+  scrollbar-width:none;
+}
+.filter-row::-webkit-scrollbar{display:none}
+.chip{
+  flex-shrink:0;padding:7px 15px;
+  background:var(--chip-bg);border:1.5px solid var(--chip-border);
+  border-radius:var(--radius-pill);font-family:"Syne",sans-serif;
+  font-size:12px;font-weight:700;color:var(--text-sub);cursor:pointer;
+  white-space:nowrap;transition:all .18s ease;-webkit-tap-highlight-color:transparent;
+  letter-spacing:.01em;
+}
+.chip:hover{border-color:var(--violet);color:var(--violet)}
+.chip.active{
+  background:linear-gradient(135deg,var(--violet),var(--blue));
+  border-color:transparent;color:#fff;
+  box-shadow:0 4px 14px rgba(124,58,237,.38);
+}
+.chip .n{margin-left:5px;opacity:.6;font-size:10.5px;font-weight:600}
 
-  .header-inner {
-    padding: 18px 18px 12px;
-    max-width: 1280px;
-    margin: 0 auto;
-  }
+/* ── GRID ── */
+main{
+  position:relative;z-index:1;
+  max-width:1320px;margin:0 auto;
+  padding:18px 14px 100px;
+}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+@media(min-width:520px){.grid{grid-template-columns:repeat(3,1fr);gap:14px}}
+@media(min-width:780px){.grid{grid-template-columns:repeat(4,1fr);gap:16px}}
+@media(min-width:1060px){.grid{grid-template-columns:repeat(5,1fr)}}
+@media(min-width:1280px){.grid{grid-template-columns:repeat(6,1fr)}}
 
-  .brand {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: 16px;
-    margin-bottom: 14px;
-  }
+/* ── CARD ── */
+.card{
+  background:var(--surface);border-radius:var(--radius);
+  box-shadow:var(--shadow-card);border:1px solid var(--border);
+  overflow:hidden;cursor:pointer;display:flex;flex-direction:column;
+  transition:transform .28s cubic-bezier(.2,.8,.2,1),box-shadow .28s;
+  -webkit-tap-highlight-color:transparent;
+  animation:riseUp .45s cubic-bezier(.2,.8,.2,1) backwards;
+}
+@keyframes riseUp{from{opacity:0;transform:translateY(12px) scale(.97)}to{opacity:1;transform:none}}
+@media(hover:hover){.card:hover{transform:translateY(-3px);box-shadow:var(--shadow-hover)}}
+.card:active{transform:scale(.975)}
 
-  .brand h1 {
-    font-family: "Instrument Serif", Georgia, serif;
-    font-weight: 400;
-    font-size: clamp(28px, 6vw, 42px);
-    line-height: 1;
-    letter-spacing: -0.01em;
-    margin: 0;
-  }
+.card-img{
+  aspect-ratio:1/1;overflow:hidden;
+  background:var(--surface-2);position:relative;
+}
+.card-img img{width:100%;height:100%;object-fit:cover;transition:transform .5s cubic-bezier(.2,.8,.2,1)}
+@media(hover:hover){.card:hover .card-img img{transform:scale(1.06)}}
 
-  .brand h1 em {
-    font-style: italic;
-    color: var(--text-muted);
-  }
+.cat-badge{
+  position:absolute;top:8px;left:8px;
+  background:linear-gradient(135deg,var(--violet),var(--blue));
+  color:#fff;font-family:"Syne",sans-serif;
+  font-size:9px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;
+  padding:3px 8px;border-radius:var(--radius-pill);
+  box-shadow:0 2px 8px rgba(124,58,237,.4);
+}
 
-  .count-badge {
-    font-size: 12px;
-    color: var(--text-muted);
-    letter-spacing: 0.02em;
-    text-transform: uppercase;
-    white-space: nowrap;
-    font-weight: 500;
-  }
+.card-img.broken{
+  display:flex;align-items:center;justify-content:center;
+  flex-direction:column;gap:6px;color:var(--muted);
+  font-size:11px;text-align:center;padding:12px;
+}
+.card-img.broken svg{width:26px;height:26px;opacity:.35}
 
-  .subtitle {
-    color: var(--text-muted);
-    font-size: 14px;
-    margin: 0 0 14px;
-    max-width: 60ch;
-  }
+.card-body{padding:10px 13px 14px;display:flex;flex-direction:column;flex:1;gap:3px}
+.card-name{
+  font-family:"Syne",sans-serif;font-size:13px;font-weight:700;line-height:1.3;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
+}
+.card-desc{
+  font-size:11.5px;color:var(--text-sub);line-height:1.4;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
+}
+.card-price{
+  margin-top:auto;padding-top:9px;
+  font-family:"Syne",sans-serif;font-weight:800;
+  font-size:18px;color:var(--price-col);letter-spacing:-.02em;line-height:1;
+}
 
-  .search-box {
-    position: relative;
-    margin-bottom: 12px;
-  }
+/* ── ESTADOS ── */
+.state{text-align:center;padding:72px 24px}
+.state-icon{
+  width:56px;height:56px;border-radius:50%;
+  background:rgba(124,58,237,.1);
+  display:flex;align-items:center;justify-content:center;
+  margin:0 auto 18px;
+}
+.state-icon svg{width:26px;height:26px;color:var(--violet)}
+.state h2{font-family:"Syne",sans-serif;font-size:22px;font-weight:800;letter-spacing:-.02em;margin-bottom:8px}
+.state p{color:var(--text-sub);font-size:14px;max-width:48ch;margin:0 auto 14px}
+.state code{display:inline-block;background:var(--surface-2);padding:3px 8px;border-radius:6px;font-size:12px;word-break:break-all;border:1px solid var(--border)}
 
-  .search-box svg {
-    position: absolute;
-    left: 14px;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 18px;
-    height: 18px;
-    color: var(--text-muted);
-    pointer-events: none;
-  }
+.skel-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+@media(min-width:520px){.skel-grid{grid-template-columns:repeat(3,1fr)}}
+@media(min-width:780px){.skel-grid{grid-template-columns:repeat(4,1fr)}}
+.skel-card{background:var(--surface);border-radius:var(--radius);border:1px solid var(--border);overflow:hidden}
+.skel-img{aspect-ratio:1/1;background:linear-gradient(90deg,var(--surface-2) 25%,var(--surface) 50%,var(--surface-2) 75%);background-size:200% 100%;animation:shimmer 1.5s infinite}
+.skel-body{padding:12px 14px}
+.skel-line{height:10px;border-radius:5px;background:var(--surface-2);margin-bottom:7px;animation:shimmer 1.5s infinite}
+.skel-line.w60{width:60%}.skel-line.w40{width:40%}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
 
-  .search-box input {
-    width: 100%;
-    padding: 12px 14px 12px 42px;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    outline: none;
-    transition: border-color .15s ease, box-shadow .15s ease;
-  }
+/* ── LIGHTBOX ── */
+.lb-overlay{
+  position:fixed;inset:0;
+  background:rgba(8,15,31,.82);
+  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  z-index:100;display:none;align-items:flex-end;justify-content:center;
+}
+@media(min-width:600px){.lb-overlay{align-items:center;padding:20px}}
+.lb-overlay.open{display:flex;animation:fadeIn .2s ease}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
 
-  .search-box input:focus {
-    border-color: var(--accent);
-    box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 12%, transparent);
-  }
+.lb-sheet{
+  background:var(--surface);width:100%;max-width:560px;
+  max-height:92dvh;overflow-y:auto;
+  border-radius:24px 24px 0 0;
+  box-shadow:var(--shadow-lb);
+  animation:slideUp .3s cubic-bezier(.2,.8,.2,1);
+  position:relative;
+}
+@media(min-width:600px){.lb-sheet{border-radius:24px;animation:zoomIn .25s cubic-bezier(.2,.8,.2,1)}}
+@keyframes slideUp{from{transform:translateY(40px);opacity:0}to{transform:none;opacity:1}}
+@keyframes zoomIn{from{transform:scale(.93);opacity:0}to{transform:none;opacity:1}}
 
-  .search-box input::placeholder { color: var(--text-muted); }
+.lb-handle{width:40px;height:4px;background:var(--border);border-radius:2px;margin:12px auto 0}
+@media(min-width:600px){.lb-handle{display:none}}
 
-  /* Filtros chips com scroll horizontal */
-  .filters {
-    display: flex;
-    gap: 8px;
-    overflow-x: auto;
-    overflow-y: hidden;
-    padding: 4px 0 8px;
-    margin: 0 -18px;
-    padding-left: 18px;
-    padding-right: 18px;
-    scrollbar-width: none;
-    -ms-overflow-style: none;
-    scroll-snap-type: x proximity;
-  }
-  .filters::-webkit-scrollbar { display: none; }
+.lb-img-wrap{position:relative}
+.lb-img{width:100%;aspect-ratio:1/1;object-fit:cover;display:block;background:var(--surface-2)}
+.lb-img-wrap::after{
+  content:"";position:absolute;bottom:0;left:0;right:0;height:55%;
+  background:linear-gradient(to top,var(--surface),transparent);pointer-events:none;
+}
+.lb-close{
+  position:absolute;top:14px;right:14px;width:34px;height:34px;
+  border-radius:50%;background:rgba(15,23,42,.55);
+  backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;
+  cursor:pointer;z-index:2;border:1px solid rgba(255,255,255,.15);
+}
+.lb-close svg{width:16px;height:16px;color:#fff}
 
-  .chip {
-    flex-shrink: 0;
-    padding: 8px 14px;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 999px;
-    font-size: 13px;
-    font-weight: 500;
-    color: var(--text);
-    cursor: pointer;
-    transition: all .15s ease;
-    scroll-snap-align: start;
-    white-space: nowrap;
-    -webkit-tap-highlight-color: transparent;
-  }
+.lb-body{padding:0 20px 28px;position:relative;z-index:1;margin-top:-28px}
 
-  .chip:hover { border-color: var(--text-muted); }
+.lb-cat-pill{
+  display:inline-flex;align-items:center;
+  background:linear-gradient(135deg,var(--violet),var(--blue));
+  color:#fff;font-family:"Syne",sans-serif;
+  font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+  padding:4px 12px;border-radius:var(--radius-pill);margin-bottom:10px;
+}
+.lb-name{
+  font-family:"Syne",sans-serif;font-size:clamp(20px,5vw,26px);
+  font-weight:800;letter-spacing:-.02em;line-height:1.15;margin-bottom:8px;
+}
+.lb-desc{color:var(--text-sub);font-size:14px;line-height:1.6;margin-bottom:18px}
+.lb-footer{
+  display:flex;align-items:center;justify-content:space-between;
+  background:var(--surface-2);border-radius:14px;
+  padding:14px 18px;border:1px solid var(--border);
+}
+.lb-price-label,.lb-cod-label{
+  font-size:10.5px;color:var(--text-sub);font-weight:600;
+  text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px;
+}
+.lb-price-val{
+  font-family:"Syne",sans-serif;font-size:26px;font-weight:800;
+  color:var(--price-col);letter-spacing:-.02em;line-height:1;
+}
+.lb-cod{text-align:right}
+.lb-cod-val{font-family:"Syne",sans-serif;font-size:15px;font-weight:700;letter-spacing:.04em}
 
-  .chip.active {
-    background: var(--accent);
-    color: var(--accent-fg);
-    border-color: var(--accent);
-  }
-
-  .chip .count {
-    margin-left: 6px;
-    opacity: .55;
-    font-variant-numeric: tabular-nums;
-    font-size: 11px;
-  }
-
-  /* =========================================================
-     Grid de produtos
-     ========================================================= */
-  main {
-    padding: 20px 18px 80px;
-    max-width: 1280px;
-    margin: 0 auto;
-  }
-
-  .grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 14px;
-  }
-
-  @media (min-width: 640px) {
-    .grid { grid-template-columns: repeat(3, 1fr); gap: 18px; }
-  }
-  @media (min-width: 960px) {
-    .grid { grid-template-columns: repeat(4, 1fr); gap: 22px; }
-  }
-  @media (min-width: 1280px) {
-    .grid { grid-template-columns: repeat(5, 1fr); }
-  }
-
-  .card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    overflow: hidden;
-    cursor: pointer;
-    transition: transform .25s cubic-bezier(.2,.8,.2,1), box-shadow .25s ease, border-color .2s ease;
-    -webkit-tap-highlight-color: transparent;
-    display: flex;
-    flex-direction: column;
-    animation: fadeUp .4s cubic-bezier(.2,.8,.2,1) backwards;
-  }
-
-  @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(8px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-
-  @media (hover: hover) {
-    .card:hover {
-      transform: translateY(-2px);
-      box-shadow: var(--shadow);
-      border-color: color-mix(in srgb, var(--text-muted) 50%, var(--border));
-    }
-  }
-
-  .card:active { transform: scale(0.985); }
-
-  .card-img {
-    aspect-ratio: 1 / 1;
-    background: var(--surface-2);
-    overflow: hidden;
-    position: relative;
-  }
-
-  .card-img img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transition: transform .5s cubic-bezier(.2,.8,.2,1);
-  }
-
-  @media (hover: hover) {
-    .card:hover .card-img img { transform: scale(1.04); }
-  }
-
-  .card-img.is-broken {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--text-muted);
-    font-size: 11px;
-    text-align: center;
-    padding: 12px;
-  }
-
-  .card-body {
-    padding: 12px 14px 14px;
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    flex: 1;
-  }
-
-  .card-cat {
-    font-size: 10px;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: var(--text-muted);
-    font-weight: 600;
-  }
-
-  .card-title {
-    font-size: 14px;
-    line-height: 1.3;
-    margin: 0;
-    font-weight: 600;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-  }
-
-  .card-desc {
-    font-size: 12px;
-    color: var(--text-muted);
-    margin: 2px 0 0;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-  }
-
-  .card-price {
-    margin-top: auto;
-    padding-top: 10px;
-    font-family: "Instrument Serif", Georgia, serif;
-    font-size: 22px;
-    line-height: 1;
-    font-weight: 400;
-    letter-spacing: -0.01em;
-    font-variant-numeric: tabular-nums;
-  }
-
-  /* =========================================================
-     Estados: loading, erro, vazio
-     ========================================================= */
-  .state {
-    text-align: center;
-    padding: 80px 24px;
-    color: var(--text-muted);
-  }
-
-  .state h2 {
-    font-family: "Instrument Serif", Georgia, serif;
-    font-weight: 400;
-    font-style: italic;
-    font-size: 28px;
-    color: var(--text);
-    margin: 0 0 8px;
-  }
-
-  .state p { margin: 0 0 16px; max-width: 50ch; margin-inline: auto; font-size: 14px; }
-
-  .state code {
-    background: var(--surface-2);
-    padding: 2px 6px;
-    border-radius: 4px;
-    font-size: 12px;
-    word-break: break-all;
-  }
-
-  .skeleton-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 14px;
-  }
-  @media (min-width: 640px) { .skeleton-grid { grid-template-columns: repeat(3, 1fr); gap: 18px; } }
-  @media (min-width: 960px) { .skeleton-grid { grid-template-columns: repeat(4, 1fr); gap: 22px; } }
-
-  .skeleton {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    overflow: hidden;
-  }
-  .skeleton .sk-img { aspect-ratio: 1/1; background: linear-gradient(90deg, var(--surface-2), var(--border), var(--surface-2)); background-size: 200% 100%; animation: shimmer 1.4s infinite; }
-  .skeleton .sk-body { padding: 14px; }
-  .skeleton .sk-line { height: 10px; background: var(--surface-2); border-radius: 4px; margin-bottom: 8px; }
-  .skeleton .sk-line.short { width: 40%; }
-
-  @keyframes shimmer {
-    0% { background-position: 200% 0; }
-    100% { background-position: -200% 0; }
-  }
-
-  /* =========================================================
-     Lightbox
-     ========================================================= */
-  .lightbox {
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,.85);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    z-index: 100;
-    display: none;
-    align-items: center;
-    justify-content: center;
-    padding: 16px;
-    animation: fadeIn .2s ease;
-  }
-  .lightbox.is-open { display: flex; }
-
-  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
-  .lightbox-inner {
-    max-width: 600px;
-    width: 100%;
-    background: var(--surface);
-    border-radius: var(--radius);
-    overflow: hidden;
-    box-shadow: var(--shadow-lg);
-    animation: zoomIn .25s cubic-bezier(.2,.8,.2,1);
-    max-height: calc(100dvh - 32px);
-    overflow-y: auto;
-  }
-
-  @keyframes zoomIn { from { transform: scale(.96); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-
-  .lightbox-inner img {
-    width: 100%;
-    aspect-ratio: 1/1;
-    object-fit: cover;
-    background: var(--surface-2);
-  }
-
-  .lightbox-body { padding: 20px 22px 24px; }
-  .lightbox-cat {
-    font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    color: var(--text-muted);
-    font-weight: 600;
-    margin-bottom: 6px;
-  }
-  .lightbox-title {
-    font-family: "Instrument Serif", Georgia, serif;
-    font-weight: 400;
-    font-size: 28px;
-    line-height: 1.1;
-    margin: 0 0 10px;
-    letter-spacing: -0.01em;
-  }
-  .lightbox-desc { color: var(--text-muted); font-size: 14px; margin: 0 0 16px; }
-  .lightbox-price {
-    font-family: "Instrument Serif", Georgia, serif;
-    font-size: 32px;
-    font-variant-numeric: tabular-nums;
-    line-height: 1;
-  }
-
-  .lightbox-close {
-    position: absolute;
-    top: 24px;
-    right: 24px;
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: var(--shadow);
-  }
-  .lightbox-close svg { width: 18px; height: 18px; }
-
-  footer {
-    text-align: center;
-    padding: 24px 16px;
-    border-top: 1px solid var(--border);
-    color: var(--text-muted);
-    font-size: 12px;
-  }
-
-  /* Reduz motion se o sistema pedir */
-  @media (prefers-reduced-motion: reduce) {
-    *, *::before, *::after {
-      animation-duration: .01ms !important;
-      transition-duration: .01ms !important;
-    }
-  }
+footer{
+  position:relative;z-index:1;text-align:center;
+  padding:20px;color:var(--muted);font-size:11.5px;
+  border-top:1px solid var(--border);
+}
+footer span{
+  display:inline-block;width:6px;height:6px;border-radius:50%;
+  background:var(--violet);margin:0 6px;vertical-align:middle;
+  animation:pulse 2s infinite;
+}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.35;transform:scale(.65)}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
 </style>
 </head>
 <body>
 
 <header class="site-header">
   <div class="header-inner">
-    <div class="brand">
-      <h1 id="title">Catálogo<em>.</em></h1>
-      <span class="count-badge" id="count-badge"></span>
+    <div class="brand-row">
+      <div class="brand-logo">
+        <div class="brand-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/>
+            <path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/>
+          </svg>
+        </div>
+        <div class="brand-texts">
+          <div class="brand-title" id="js-title">Catálogo</div>
+          <div class="brand-sub" id="js-brand">Produtos &amp; Preços</div>
+        </div>
+      </div>
+      <div class="count-pill" id="js-count"></div>
     </div>
-    <p class="subtitle" id="subtitle"></p>
-
-    <label class="search-box" aria-label="Buscar">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <circle cx="11" cy="11" r="7"></circle>
-        <path d="m21 21-4.3-4.3"></path>
+    <div class="search-wrap">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/>
       </svg>
-      <input type="search" id="search" placeholder="Buscar por nome ou descrição…" autocomplete="off" />
-    </label>
-
-    <div class="filters" id="filters" role="tablist" aria-label="Filtrar por categoria"></div>
+      <input type="search" id="js-search" placeholder="Buscar produto…" autocomplete="off" />
+    </div>
+    <div class="filter-row" id="js-filters" role="tablist"></div>
   </div>
 </header>
 
-<main>
-  <div id="content">
-    <!-- Skeleton inicial -->
-    <div class="skeleton-grid" id="skeleton">
-      <div class="skeleton"><div class="sk-img"></div><div class="sk-body"><div class="sk-line"></div><div class="sk-line short"></div></div></div>
-      <div class="skeleton"><div class="sk-img"></div><div class="sk-body"><div class="sk-line"></div><div class="sk-line short"></div></div></div>
-      <div class="skeleton"><div class="sk-img"></div><div class="sk-body"><div class="sk-line"></div><div class="sk-line short"></div></div></div>
-      <div class="skeleton"><div class="sk-img"></div><div class="sk-body"><div class="sk-line"></div><div class="sk-line short"></div></div></div>
-      <div class="skeleton"><div class="sk-img"></div><div class="sk-body"><div class="sk-line"></div><div class="sk-line short"></div></div></div>
-      <div class="skeleton"><div class="sk-img"></div><div class="sk-body"><div class="sk-line"></div><div class="sk-line short"></div></div></div>
-    </div>
+<main id="js-main">
+  <div class="skel-grid" id="js-skeleton">
+    <div class="skel-card"><div class="skel-img"></div><div class="skel-body"><div class="skel-line"></div><div class="skel-line w60"></div><div class="skel-line w40"></div></div></div>
+    <div class="skel-card"><div class="skel-img"></div><div class="skel-body"><div class="skel-line"></div><div class="skel-line w60"></div><div class="skel-line w40"></div></div></div>
+    <div class="skel-card"><div class="skel-img"></div><div class="skel-body"><div class="skel-line"></div><div class="skel-line w60"></div><div class="skel-line w40"></div></div></div>
+    <div class="skel-card"><div class="skel-img"></div><div class="skel-body"><div class="skel-line"></div><div class="skel-line w60"></div><div class="skel-line w40"></div></div></div>
+    <div class="skel-card"><div class="skel-img"></div><div class="skel-body"><div class="skel-line"></div><div class="skel-line w60"></div><div class="skel-line w40"></div></div></div>
+    <div class="skel-card"><div class="skel-img"></div><div class="skel-body"><div class="skel-line"></div><div class="skel-line w60"></div><div class="skel-line w40"></div></div></div>
   </div>
 </main>
 
-<footer>
-  <p>Atualizado automaticamente a partir da planilha</p>
-</footer>
+<footer><span></span> Atualizado automaticamente a partir da planilha</footer>
 
-<!-- Lightbox -->
-<div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-labelledby="lb-title">
-  <button class="lightbox-close" id="lightbox-close" aria-label="Fechar">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
-  </button>
-  <div class="lightbox-inner" id="lightbox-inner">
-    <img id="lb-img" alt="" />
-    <div class="lightbox-body">
-      <div class="lightbox-cat" id="lb-cat"></div>
-      <h2 class="lightbox-title" id="lb-title"></h2>
-      <p class="lightbox-desc" id="lb-desc"></p>
-      <div class="lightbox-price" id="lb-price"></div>
+<div class="lb-overlay" id="js-lb" role="dialog" aria-modal="true">
+  <div class="lb-sheet" id="js-lb-sheet">
+    <div class="lb-handle"></div>
+    <div class="lb-img-wrap">
+      <img class="lb-img" id="lb-img" alt="" />
+      <button class="lb-close" id="lb-close" aria-label="Fechar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="lb-body">
+      <div class="lb-cat-pill" id="lb-cat"></div>
+      <h2 class="lb-name" id="lb-name"></h2>
+      <p class="lb-desc" id="lb-desc"></p>
+      <div class="lb-footer">
+        <div>
+          <div class="lb-price-label">Valor</div>
+          <div class="lb-price-val" id="lb-price"></div>
+        </div>
+        <div class="lb-cod" id="lb-cod-wrap">
+          <div class="lb-cod-label">Código</div>
+          <div class="lb-cod-val" id="lb-cod"></div>
+        </div>
+      </div>
     </div>
   </div>
 </div>
 
 <script>
-(() => {
-  "use strict";
+(()=>{
+"use strict";
 
-  // ===========================================================
-  // Util: parser CSV resiliente (aspas, vírgulas, BOM, \r\n)
-  // ===========================================================
-  function parseCSV(text) {
-    if (text.charCodeAt(0) === 0xFEFF) text = text.slice(1); // remove BOM
-    const rows = [];
-    let row = [], field = "", inQuotes = false;
-    for (let i = 0; i < text.length; i++) {
-      const c = text[i];
-      if (inQuotes) {
-        if (c === '"') {
-          if (text[i+1] === '"') { field += '"'; i++; }
-          else { inQuotes = false; }
-        } else field += c;
-      } else {
-        if (c === '"') inQuotes = true;
-        else if (c === ',') { row.push(field); field = ""; }
-        else if (c === '\n') { row.push(field); rows.push(row); row = []; field = ""; }
-        else if (c === '\r') { /* skip */ }
-        else field += c;
-      }
+function parseCSV(text){
+  if(text.charCodeAt(0)===0xFEFF)text=text.slice(1);
+  const rows=[];let row=[],field="",inQ=false;
+  for(let i=0;i<text.length;i++){
+    const c=text[i];
+    if(inQ){if(c==='"'){if(text[i+1]==='"'){field+='"';i++;}else inQ=false;}else field+=c;}
+    else{
+      if(c==='"')inQ=true;
+      else if(c===','){row.push(field);field="";}
+      else if(c==='\n'){row.push(field);rows.push(row);row=[];field="";}
+      else if(c!=='\r')field+=c;
     }
-    if (field.length || row.length) { row.push(field); rows.push(row); }
-    return rows.filter(r => r.some(v => v.trim().length > 0));
   }
+  if(row.length){row.push(field);rows.push(row);}
+  return rows.filter(r=>r.some(v=>v.trim()));
+}
 
-  // ===========================================================
-  // Mapa flexível de nomes de colunas (pt-br comum)
-  // ===========================================================
-  const FIELD_ALIASES = {
-    name:     ["nome", "produto", "item", "titulo", "título", "descricao curta", "name", "title"],
-    category: ["categoria", "category", "tipo", "grupo", "departamento", "secao", "seção"],
-    desc:     ["descricao", "descrição", "description", "detalhes", "obs", "observacoes", "observações"],
-    price:    ["preco", "preço", "valor", "price", "valor unitario", "valor unitário"],
-    // Colunas que contêm URL/ID do Drive (prioridade: link > imagem, pois imagem pode ser só nome de arquivo)
-    link:     ["link", "url", "drive", "imagem_url", "image_url", "foto_url"],
-    image:    ["imagem", "foto", "image", "img"]
-  };
+const ALIASES={
+  name:    ["produto","nome","item","titulo","título","name","title"],
+  category:["categoria","category","tipo","grupo"],
+  desc:    ["descricao","descrição","description","detalhes","obs"],
+  price:   ["valor","preco","preço","price"],
+  link:    ["link","url","drive","imagem_url","image_url"],
+  image:   ["imagem","foto","image","img"],
+  code:    ["codigo","código","code","cod","ref"]
+};
 
-  function buildIndex(headers) {
-    const idx = { name: -1, category: -1, desc: -1, price: -1, image: -1, link: -1 };
-    const norm = h => h.toLowerCase().trim().replace(/\s+/g, " ");
-    headers.forEach((h, i) => {
-      const n = norm(h);
-      for (const key in FIELD_ALIASES) {
-        if (idx[key] === -1 && FIELD_ALIASES[key].includes(n)) { idx[key] = i; return; }
-      }
-    });
-    return idx;
-  }
-
-  // ===========================================================
-  // Drive: extrai file ID de qualquer formato razoável
-  // ===========================================================
-  function extractDriveId(value) {
-    if (!value) return null;
-    const v = value.trim();
-    // ID puro (geralmente 25+ chars alfanuméricos com - e _)
-    if (/^[\w-]{25,}$/.test(v)) return v;
-    // URL com /d/ID/ ou /d/ID
-    let m = v.match(/\/d\/([\w-]{25,})/);
-    if (m) return m[1];
-    // URL com ?id=ID ou &id=ID
-    m = v.match(/[?&]id=([\w-]{25,})/);
-    if (m) return m[1];
-    // qualquer ID de 25+ chars na string
-    m = v.match(/([\w-]{25,})/);
-    if (m) return m[1];
-    return null;
-  }
-
-  function imageUrlFromDrive(value, size = 600) {
-    const id = extractDriveId(value);
-    if (!id) return null;
-    return `https://lh3.googleusercontent.com/d/${id}=w${size}`;
-  }
-
-  // ===========================================================
-  // Parsing de preço — aceita "R$ 1.234,56", "1234.56", número
-  // ===========================================================
-  function parsePrice(raw) {
-    if (raw == null) return null;
-    const s = String(raw).trim();
-    if (!s) return null;
-    // remove tudo que não for dígito, vírgula, ponto ou sinal
-    let cleaned = s.replace(/[^\d.,\-]/g, "");
-    if (!cleaned) return null;
-    // se tem vírgula E ponto, assume formato pt-br: ponto = milhar, vírgula = decimal
-    if (cleaned.includes(",") && cleaned.includes(".")) {
-      cleaned = cleaned.replace(/\./g, "").replace(",", ".");
-    } else if (cleaned.includes(",")) {
-      // só vírgula → decimal pt-br
-      cleaned = cleaned.replace(",", ".");
-    }
-    const n = parseFloat(cleaned);
-    return Number.isFinite(n) ? n : null;
-  }
-
-  const formatter = new Intl.NumberFormat(window.CURRENCY_LOCALE || "pt-BR", {
-    style: "currency",
-    currency: window.CURRENCY_CODE || "BRL"
+function buildIdx(headers){
+  const idx={name:-1,category:-1,desc:-1,price:-1,link:-1,image:-1,code:-1};
+  const n=h=>h.toLowerCase().trim().replace(/\s+/g," ");
+  headers.forEach((h,i)=>{
+    const hn=n(h);
+    for(const k in ALIASES)if(idx[k]===-1&&ALIASES[k].includes(hn)){idx[k]=i;return;}
   });
+  return idx;
+}
 
-  function formatPrice(n, fallback) {
-    if (n == null) return fallback || "—";
-    return formatter.format(n);
+function driveId(val){
+  if(!val)return null;
+  const v=val.trim();
+  let m=v.match(/\/d\/([\w-]{20,})/);if(m)return m[1];
+  m=v.match(/[?&]id=([\w-]{20,})/);if(m)return m[1];
+  if(/^[\w-]{20,}$/.test(v))return v;
+  m=v.match(/([\w-]{20,})/);if(m)return m[1];
+  return null;
+}
+
+/* URL correta — Google Drive Thumbnail API, funciona sem autenticação em arquivos públicos */
+function imgUrl(val,sz=400){
+  const id=driveId(val);
+  if(!id)return null;
+  return `https://drive.google.com/thumbnail?id=${id}&sz=w${sz}`;
+}
+
+function parsePrice(raw){
+  if(!raw)return null;
+  let s=String(raw).replace(/[^\d.,-]/g,"").trim();
+  if(!s)return null;
+  if(s.includes(",")&&s.includes("."))s=s.replace(/\./g,"").replace(",",".");
+  else if(s.includes(","))s=s.replace(",",".");
+  const n=parseFloat(s);
+  return Number.isFinite(n)?n:null;
+}
+const fmt=new Intl.NumberFormat(window.CURRENCY_LOCALE||"pt-BR",{style:"currency",currency:window.CURRENCY_CODE||"BRL"});
+const fmtP=(n,raw)=>n!=null?fmt.format(n):(raw||"—");
+
+const S={items:[],cat:"Tudo",q:""};
+const $=id=>document.getElementById(id);
+
+const elMain=$("js-main"),elFilters=$("js-filters"),elCount=$("js-count"),elSearch=$("js-search");
+const elLb=$("js-lb"),lbImg=$("lb-img"),lbCat=$("lb-cat"),lbName=$("lb-name");
+const lbDesc=$("lb-desc"),lbPrice=$("lb-price"),lbCod=$("lb-cod"),lbCodWrap=$("lb-cod-wrap");
+
+document.title=window.CATALOG_TITLE||"Catálogo";
+$("js-title").textContent=window.CATALOG_TITLE||"Catálogo";
+$("js-brand").textContent=window.CATALOG_BRAND||"";
+
+const esc=s=>String(s??"").replace(/[&<>"']/g,m=>({'&':"&amp;",'<':"&lt;",'>':"&gt;",'"':"&quot;","'":'&#39;'}[m]));
+const cap=s=>s?s.charAt(0).toUpperCase()+s.slice(1):s;
+
+function showErr(title,msg,code){
+  elMain.innerHTML=`<div class="state">
+    <div class="state-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4m0 4h.01"/></svg></div>
+    <h2>${esc(title)}</h2><p>${esc(msg)}</p>${code?`<code>${esc(code)}</code>`:""}
+  </div>`;
+}
+
+function renderFilters(){
+  const counts={Tudo:S.items.length};
+  S.items.forEach(p=>{const c=p.category||"Sem categoria";counts[c]=(counts[c]||0)+1;});
+  const cats=["Tudo",...Object.keys(counts).filter(c=>c!=="Tudo").sort((a,b)=>a.localeCompare(b,"pt-BR"))];
+  elFilters.innerHTML=cats.map(c=>
+    `<button class="chip${c===S.cat?" active":""}" data-cat="${esc(c)}">${esc(cap(c))}<span class="n">${counts[c]}</span></button>`
+  ).join("");
+  elFilters.querySelectorAll(".chip").forEach(btn=>btn.addEventListener("click",()=>{
+    S.cat=btn.dataset.cat;renderFilters();renderGrid();
+  }));
+}
+
+function renderGrid(){
+  const q=S.q.trim().toLowerCase();
+  const list=S.items.filter(p=>{
+    if(S.cat!=="Tudo"&&(p.category||"Sem categoria")!==S.cat)return false;
+    if(q&&!`${p.name} ${p.desc||""} ${p.category||""}`.toLowerCase().includes(q))return false;
+    return true;
+  });
+  elCount.textContent=`${list.length} ${list.length===1?"item":"itens"}`;
+  if(!list.length){
+    elMain.innerHTML=`<div class="state">
+      <div class="state-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg></div>
+      <h2>Nenhum resultado</h2><p>Tente outra categoria ou limpe a busca.</p>
+    </div>`;
+    return;
   }
+  const grid=document.createElement("div");
+  grid.className="grid";
+  grid.innerHTML=list.map((p,i)=>`
+    <article class="card" data-i="${i}" style="animation-delay:${Math.min(i*28,500)}ms">
+      <div class="card-img${p.imageUrl?"":" broken"}" data-wrap>
+        ${p.imageUrl
+          ?`${p.category?`<span class="cat-badge">${esc(cap(p.category))}</span>`:""}
+            <img loading="lazy" decoding="async" src="${esc(p.imageUrl)}" alt="${esc(p.name)}"
+              onerror="const w=this.parentElement;w.classList.add('broken');w.innerHTML='<svg viewBox=\\'0 0 24 24\\' fill=\\'none\\' stroke=\\'currentColor\\' stroke-width=\\'1.5\\'><rect x=\\'3\\' y=\\'3\\' width=\\'18\\' height=\\'18\\' rx=\\'2\\'/><path d=\\'m9 9 6 6m0-6-6 6\\'/></svg><span>sem imagem</span>';">`
+          :`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="m9 9 6 6m0-6-6 6"/></svg><span>sem imagem</span>`
+        }
+      </div>
+      <div class="card-body">
+        <div class="card-name">${esc(p.name)}</div>
+        ${p.desc?`<div class="card-desc">${esc(p.desc)}</div>`:""}
+        <div class="card-price">${fmtP(p.price,p.priceRaw)}</div>
+      </div>
+    </article>`).join("");
+  elMain.innerHTML="";
+  elMain.appendChild(grid);
+  grid.querySelectorAll(".card").forEach((card,i)=>card.addEventListener("click",()=>openLb(list[i])));
+}
 
-  // ===========================================================
-  // Render
-  // ===========================================================
-  const els = {
-    title: document.getElementById("title"),
-    subtitle: document.getElementById("subtitle"),
-    countBadge: document.getElementById("count-badge"),
-    search: document.getElementById("search"),
-    filters: document.getElementById("filters"),
-    content: document.getElementById("content"),
-    skeleton: document.getElementById("skeleton"),
-    lb: document.getElementById("lightbox"),
-    lbImg: document.getElementById("lb-img"),
-    lbCat: document.getElementById("lb-cat"),
-    lbTitle: document.getElementById("lb-title"),
-    lbDesc: document.getElementById("lb-desc"),
-    lbPrice: document.getElementById("lb-price"),
-    lbClose: document.getElementById("lightbox-close")
-  };
+function openLb(p){
+  lbImg.src=p.imageUrl?p.imageUrl.replace(/sz=w\d+/,"sz=w900"):"";
+  lbImg.style.display=p.imageUrl?"block":"none";
+  lbCat.textContent=cap(p.category||"Produto");
+  lbName.textContent=p.name;
+  lbDesc.textContent=p.desc||"";
+  lbDesc.style.display=p.desc?"block":"none";
+  lbPrice.textContent=fmtP(p.price,p.priceRaw);
+  lbCod.textContent=p.code||"";
+  lbCodWrap.style.display=p.code?"block":"none";
+  elLb.classList.add("open");
+  document.body.style.overflow="hidden";
+}
+function closeLb(){elLb.classList.remove("open");document.body.style.overflow="";}
 
-  els.title.innerHTML = (window.CATALOG_TITLE || "Catálogo").replace(/\.$/, "<em>.</em>") || "Catálogo<em>.</em>";
-  els.subtitle.textContent = window.CATALOG_SUBTITLE || "";
+$("lb-close").addEventListener("click",closeLb);
+elLb.addEventListener("click",e=>{if(e.target===elLb)closeLb();});
+document.addEventListener("keydown",e=>{if(e.key==="Escape")closeLb();});
 
-  const state = {
-    items: [],
-    activeCategory: "Tudo",
-    query: ""
-  };
+let ty=0;
+$("js-lb-sheet").addEventListener("touchstart",e=>{ty=e.touches[0].clientY;},{passive:true});
+$("js-lb-sheet").addEventListener("touchend",e=>{if(e.changedTouches[0].clientY-ty>60)closeLb();},{passive:true});
 
-  function showError(title, message, codeText) {
-    els.content.innerHTML = `
-      <div class="state">
-        <h2>${title}</h2>
-        <p>${message}</p>
-        ${codeText ? `<code>${codeText}</code>` : ""}
-      </div>`;
-  }
+elSearch.addEventListener("input",e=>{S.q=e.target.value;renderGrid();});
 
-  function escapeHtml(s) {
-    return String(s ?? "").replace(/[&<>"']/g, m => ({
-      "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
-    }[m]));
-  }
-
-  function renderFilters() {
-    const counts = { "Tudo": state.items.length };
-    state.items.forEach(p => {
-      const cat = p.category || "Sem categoria";
-      counts[cat] = (counts[cat] || 0) + 1;
-    });
-    const cats = ["Tudo", ...Object.keys(counts).filter(c => c !== "Tudo").sort((a,b) => a.localeCompare(b, "pt-BR"))];
-    els.filters.innerHTML = cats.map(c =>
-      `<button class="chip ${c === state.activeCategory ? "active" : ""}" data-cat="${escapeHtml(c)}" role="tab">
-         ${escapeHtml(c)}<span class="count">${counts[c]}</span>
-       </button>`
-    ).join("");
-    els.filters.querySelectorAll(".chip").forEach(btn => {
-      btn.addEventListener("click", () => {
-        state.activeCategory = btn.dataset.cat;
-        renderFilters();
-        renderGrid();
-      });
-    });
-  }
-
-  function renderGrid() {
-    const q = state.query.trim().toLowerCase();
-    const filtered = state.items.filter(p => {
-      if (state.activeCategory !== "Tudo" && (p.category || "Sem categoria") !== state.activeCategory) return false;
-      if (q) {
-        const hay = `${p.name} ${p.desc || ""} ${p.category || ""}`.toLowerCase();
-        if (!hay.includes(q)) return false;
-      }
-      return true;
-    });
-
-    els.countBadge.textContent = `${filtered.length} ${filtered.length === 1 ? "item" : "itens"}`;
-
-    if (filtered.length === 0) {
-      els.content.innerHTML = `
-        <div class="state">
-          <h2>Nada por aqui</h2>
-          <p>Nenhum item corresponde aos filtros atuais. Tente outra categoria ou limpe a busca.</p>
-        </div>`;
-      return;
-    }
-
-    const grid = document.createElement("div");
-    grid.className = "grid";
-    grid.innerHTML = filtered.map((p, i) => `
-      <article class="card" data-id="${i}" style="animation-delay:${Math.min(i * 24, 400)}ms">
-        <div class="card-img" data-imgwrap>
-          ${p.imageUrl
-            ? `<img loading="lazy" decoding="async" src="${escapeHtml(p.imageUrl)}" alt="${escapeHtml(p.name)}" onerror="this.parentElement.classList.add('is-broken'); this.remove(); this.parentElement.textContent='imagem indisponível';">`
-            : `<span>sem imagem</span>`}
-        </div>
-        <div class="card-body">
-          ${p.category ? `<div class="card-cat">${escapeHtml(p.category)}</div>` : ""}
-          <h3 class="card-title">${escapeHtml(p.name)}</h3>
-          ${p.desc ? `<p class="card-desc">${escapeHtml(p.desc)}</p>` : ""}
-          <div class="card-price">${formatPrice(p.price, p.priceRaw)}</div>
-        </div>
-      </article>
-    `).join("");
-
-    els.content.innerHTML = "";
-    els.content.appendChild(grid);
-
-    grid.querySelectorAll(".card").forEach((card, i) => {
-      card.addEventListener("click", () => openLightbox(filtered[i]));
-    });
-  }
-
-  function openLightbox(p) {
-    els.lbImg.src = p.imageUrl ? p.imageUrl.replace(/=w\d+/, "=w1200") : "";
-    els.lbImg.alt = p.name;
-    els.lbImg.style.display = p.imageUrl ? "block" : "none";
-    els.lbCat.textContent = p.category || "";
-    els.lbCat.style.display = p.category ? "block" : "none";
-    els.lbTitle.textContent = p.name;
-    els.lbDesc.textContent = p.desc || "";
-    els.lbDesc.style.display = p.desc ? "block" : "none";
-    els.lbPrice.textContent = formatPrice(p.price, p.priceRaw);
-    els.lb.classList.add("is-open");
-    document.body.style.overflow = "hidden";
-  }
-
-  function closeLightbox() {
-    els.lb.classList.remove("is-open");
-    document.body.style.overflow = "";
-  }
-
-  els.lbClose.addEventListener("click", closeLightbox);
-  els.lb.addEventListener("click", e => { if (e.target === els.lb) closeLightbox(); });
-  document.addEventListener("keydown", e => { if (e.key === "Escape") closeLightbox(); });
-
-  els.search.addEventListener("input", e => {
-    state.query = e.target.value;
+async function init(){
+  const url=window.SHEET_CSV_URL;
+  if(!url||url.startsWith("COLE")){showErr("Configuração pendente","Cole a URL CSV da planilha no topo do arquivo.");return;}
+  try{
+    const res=await fetch(url,{cache:"no-store"});
+    if(!res.ok)throw new Error(`HTTP ${res.status}`);
+    const rows=parseCSV(await res.text());
+    if(rows.length<2)throw new Error("Planilha sem dados");
+    const idx=buildIdx(rows[0]);
+    if(idx.name===-1)throw new Error(`Coluna de nome não encontrada. Cabeçalhos: ${rows[0].join(" | ")}`);
+    S.items=rows.slice(1).map(r=>{
+      const name=(r[idx.name]||"").trim();
+      if(!name)return null;
+      const rawLink =idx.link >=0?(r[idx.link] ||""):"";
+      const rawImage=idx.image>=0?(r[idx.image]||""):"";
+      const priceRaw=idx.price>=0?(r[idx.price]||"").trim():"";
+      return{
+        name,
+        category:(idx.category>=0?r[idx.category]:"").trim()||null,
+        desc:    (idx.desc    >=0?r[idx.desc]    :"").trim()||null,
+        code:    (idx.code    >=0?r[idx.code]    :"").trim()||null,
+        price:   parsePrice(priceRaw),
+        priceRaw:priceRaw||null,
+        imageUrl:imgUrl(rawLink,400)||imgUrl(rawImage,400)
+      };
+    }).filter(Boolean);
+    if(!S.items.length){showErr("Planilha vazia","Nenhuma linha com nome de produto encontrada.");return;}
+    renderFilters();
     renderGrid();
-  });
-
-  // ===========================================================
-  // Bootstrap
-  // ===========================================================
-  async function init() {
-    const url = window.SHEET_CSV_URL;
-    if (!url || url.startsWith("COLE_AQUI")) {
-      showError(
-        "Configuração pendente",
-        "A URL CSV da planilha ainda não foi colada. Abra o arquivo HTML, localize a seção CONFIGURAÇÃO no topo do código e cole a URL gerada por «Arquivo → Compartilhar → Publicar na web → CSV»."
-      );
-      return;
-    }
-
-    try {
-      const res = await fetch(url, { cache: "no-store" });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const text = await res.text();
-      const rows = parseCSV(text);
-      if (rows.length < 2) throw new Error("Planilha vazia ou apenas cabeçalho");
-
-      const headers = rows[0];
-      const idx = buildIndex(headers);
-
-      if (idx.name === -1) {
-        showError(
-          "Cabeçalhos não reconhecidos",
-          "Não encontrei uma coluna de nome do produto. Renomeie uma coluna para «nome», «produto», «item» ou «título». Cabeçalhos detectados:",
-          headers.join(" | ")
-        );
-        return;
-      }
-
-      const items = rows.slice(1).map(r => {
-        const name = (r[idx.name] || "").trim();
-        if (!name) return null;
-        // Prioridade: coluna 'link' (URL Drive completa) > coluna 'imagem' (pode ser só nome de arquivo)
-        const rawLink  = idx.link  >= 0 ? (r[idx.link]  || "") : "";
-        const rawImg   = idx.image >= 0 ? (r[idx.image] || "") : "";
-        const priceRaw = idx.price >= 0 ? (r[idx.price] || "").trim() : "";
-        return {
-          name,
-          category: (idx.category >= 0 ? r[idx.category] : "").trim() || null,
-          desc: (idx.desc >= 0 ? r[idx.desc] : "").trim() || null,
-          price: parsePrice(priceRaw),
-          priceRaw: priceRaw || null,
-          imageUrl: imageUrlFromDrive(rawLink, 600) || imageUrlFromDrive(rawImg, 600)
-        };
-      }).filter(Boolean);
-
-      if (items.length === 0) {
-        showError("Planilha sem dados", "A planilha foi lida, mas nenhuma linha tem nome de produto preenchido.");
-        return;
-      }
-
-      state.items = items;
-      renderFilters();
-      renderGrid();
-
-    } catch (err) {
-      showError(
-        "Não foi possível carregar a planilha",
-        "Verifique se ela está publicada na web no formato CSV e se a URL no topo do arquivo está correta. Erro:",
-        escapeHtml(err.message || String(err))
-      );
-    }
-  }
-
-  init();
+  }catch(e){showErr("Erro ao carregar planilha","Verifique a URL CSV e as permissões.",e.message);}
+}
+init();
 })();
 </script>
-
 </body>
 </html>
